@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/quiz_provider.dart';
+import '../widgets/adaptive_layout.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/option_card.dart';
 import '../widgets/question_card.dart';
@@ -12,15 +13,13 @@ import 'result_screen.dart';
 class QuizScreen extends StatelessWidget {
   const QuizScreen({super.key});
 
-  // Label huruf untuk opsi A, B, C, D, dst.
   static const List<String> _optionLabels = ['A', 'B', 'C', 'D', 'E'];
 
-  /// Navigasi ke ResultScreen dengan animasi fade+slide dari bawah.
   void _goToResult(BuildContext context) {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, animation, __) => const ResultScreen(),
-        transitionsBuilder: (_, animation, __, child) {
+        pageBuilder: (context, animation, _) => const ResultScreen(),
+        transitionsBuilder: (context, animation, _, child) {
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
@@ -40,7 +39,6 @@ class QuizScreen extends StatelessWidget {
     );
   }
 
-  /// Resolve status visual OptionCard untuk opsi di [optionIndex].
   OptionCardStatus _resolveStatus(QuizProvider provider, int optionIndex) {
     if (!provider.hasAnswered) return OptionCardStatus.idle;
 
@@ -50,7 +48,6 @@ class QuizScreen extends StatelessWidget {
 
     if (isSelected && isCorrect) return OptionCardStatus.correct;
     if (isSelected && !isCorrect) return OptionCardStatus.wrong;
-    // Tampilkan jawaban benar saat user memilih yang salah.
     if (!isSelected && isCorrect) return OptionCardStatus.revealed;
 
     return OptionCardStatus.idle;
@@ -59,8 +56,7 @@ class QuizScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<QuizProvider>();
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -68,11 +64,23 @@ class QuizScreen extends StatelessWidget {
           provider.userName.isEmpty ? 'Kuis' : 'Halo, ${provider.userName}!',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
         ),
-        automaticallyImplyLeading: false, // Tidak ada back button saat kuis.
+        automaticallyImplyLeading: false,
         actions: [
-          // Skor live di AppBar.
+          // ── Toggle Light / Dark Mode ──────────────────────────────────
+          IconButton(
+            tooltip: provider.isDarkMode ? 'Light Mode' : 'Dark Mode',
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Icon(
+                provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                key: ValueKey(provider.isDarkMode),
+              ),
+            ),
+            onPressed: provider.toggleTheme,
+          ),
+          // ── Skor live ─────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 12),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -110,64 +118,63 @@ class QuizScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Konten utama (scrollable) ──────────────────────────────
+            // ── Konten soal (scrollable, dibatasi maxWidth) ───────────
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // ── Kartu Pertanyaan ──
-                    QuestionCard(
-                      questionNumber: provider.currentQuestionNumber,
-                      totalQuestions: provider.totalQuestions,
-                      questionText: provider.currentQuestion.questionText,
-                      progressValue: provider.progressPercent,
-                    ),
+              child: AdaptiveLayout(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ── Kartu Pertanyaan ──
+                      QuestionCard(
+                        questionNumber: provider.currentQuestionNumber,
+                        totalQuestions: provider.totalQuestions,
+                        questionText: provider.currentQuestion.questionText,
+                        progressValue: provider.progressPercent,
+                      ),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // ── Daftar Opsi Jawaban ──
-                    ...List.generate(
-                      provider.currentQuestion.options.length,
-                      (index) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: OptionCard(
-                          optionLabel: _optionLabels[index],
-                          optionText: provider.currentQuestion.options[index],
-                          status: _resolveStatus(provider, index),
-                          isEnabled: !provider.hasAnswered,
-                          onTap: () => provider.answerQuestion(index),
+                      // ── Daftar Opsi Jawaban ──
+                      ...List.generate(
+                        provider.currentQuestion.options.length,
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: OptionCard(
+                            optionLabel: _optionLabels[index],
+                            optionText: provider.currentQuestion.options[index],
+                            status: _resolveStatus(provider, index),
+                            isEnabled: !provider.hasAnswered,
+                            onTap: () => provider.answerQuestion(index),
+                          ),
                         ),
                       ),
-                    ),
 
-                    // ── Penjelasan Jawaban (muncul setelah menjawab) ──
-                    if (provider.hasAnswered &&
-                        provider.currentQuestion.explanation != null)
-                      _ExplanationBox(
-                        explanation: provider.currentQuestion.explanation!,
-                        isCorrect:
-                            provider.answerStatus == AnswerStatus.correct,
-                        colorScheme: colorScheme,
-                      ),
+                      // ── Penjelasan Jawaban ──
+                      if (provider.hasAnswered &&
+                          provider.currentQuestion.explanation != null)
+                        _ExplanationBox(
+                          explanation: provider.currentQuestion.explanation!,
+                          isCorrect:
+                              provider.answerStatus == AnswerStatus.correct,
+                          colorScheme: colorScheme,
+                        ),
 
-                    const SizedBox(height: 12),
-                  ],
+                      const SizedBox(height: 12),
+                    ],
+                  ),
                 ),
               ),
             ),
 
-            // ── Tombol Aksi (fixed di bawah) ─────────────────────────
+            // ── Tombol aksi bawah (juga dibatasi maxWidth) ────────────
             if (provider.hasAnswered)
               _BottomActionBar(
                 provider: provider,
                 onNext: () {
                   final moved = provider.nextQuestion();
-                  if (!moved) {
-                    // Soal terakhir sudah dijawab → ke halaman hasil.
-                    _goToResult(context);
-                  }
+                  if (!moved) _goToResult(context);
                 },
                 onFinish: () => _goToResult(context),
               ),
@@ -180,7 +187,6 @@ class QuizScreen extends StatelessWidget {
 
 // ── Sub-widget lokal ──────────────────────────────────────────────────────────
 
-/// Kotak penjelasan jawaban yang muncul setelah user menjawab.
 class _ExplanationBox extends StatelessWidget {
   const _ExplanationBox({
     required this.explanation,
@@ -207,40 +213,35 @@ class _ExplanationBox extends StatelessWidget {
         ? const Color(0xFF66BB6A)
         : const Color(0xFFEF5350);
 
-    return AnimatedOpacity(
-      opacity: 1.0,
-      duration: const Duration(milliseconds: 300),
-      child: Container(
-        margin: const EdgeInsets.only(top: 4, bottom: 4),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(iconData, color: iconColor, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                explanation,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  color: colorScheme.onSurface.withValues(alpha: 0.85),
-                  height: 1.5,
-                ),
+    return Container(
+      margin: const EdgeInsets.only(top: 4, bottom: 4),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(iconData, color: iconColor, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              explanation,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: colorScheme.onSurface.withValues(alpha: 0.85),
+                height: 1.5,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Tombol aksi di bawah layar: "Soal Berikutnya" atau "Lihat Hasil".
 class _BottomActionBar extends StatelessWidget {
   const _BottomActionBar({
     required this.provider,
@@ -254,24 +255,30 @@ class _BottomActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    // Tombol bawah juga dibungkus AdaptiveLayout agar tidak melebar di tablet.
+    return AdaptiveLayout(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: CustomButton(
+            label: provider.isLastQuestion ? 'Lihat Hasil' : 'Soal Berikutnya',
+            onPressed: provider.isLastQuestion ? onFinish : onNext,
+            icon: provider.isLastQuestion
+                ? Icons.emoji_events_rounded
+                : Icons.arrow_forward_rounded,
           ),
-        ],
-      ),
-      child: CustomButton(
-        label: provider.isLastQuestion ? 'Lihat Hasil' : 'Soal Berikutnya',
-        onPressed: provider.isLastQuestion ? onFinish : onNext,
-        icon: provider.isLastQuestion
-            ? Icons.emoji_events_rounded
-            : Icons.arrow_forward_rounded,
+        ),
       ),
     );
   }

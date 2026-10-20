@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/quiz_provider.dart';
+import '../widgets/adaptive_layout.dart';
 import '../widgets/custom_button.dart';
 import 'quiz_screen.dart';
 
@@ -39,7 +40,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
-    // Jalankan animasi masuk saat layar pertama kali tampil.
     _fadeController.forward();
   }
 
@@ -55,12 +55,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     final provider = context.read<QuizProvider>();
     provider.setUserName(_nameController.text);
-    provider.resetQuiz(); // Pastikan skor & indeks bersih sebelum mulai.
+    provider.resetQuiz();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, animation, __) => const QuizScreen(),
-        transitionsBuilder: (_, animation, __, child) {
+        pageBuilder: (context, animation, _) => const QuizScreen(),
+        transitionsBuilder: (context, animation, _, child) {
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
@@ -91,18 +91,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       appBar: AppBar(
         title: const Text('Aplikasi Kuis'),
         actions: [
+          // ── Toggle Light / Dark Mode ──────────────────────────────────
           IconButton(
             tooltip: provider.isDarkMode ? 'Light Mode' : 'Dark Mode',
-            icon: Icon(
-              provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Icon(
+                provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                key: ValueKey(provider.isDarkMode),
+              ),
             ),
             onPressed: provider.toggleTheme,
           ),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        // ── AdaptiveScrollLayout: membatasi lebar maks 600dp di tengah ──
+        child: AdaptiveScrollLayout(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SlideTransition(
@@ -248,8 +253,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
 // ── Sub-widget lokal ──────────────────────────────────────────────────────────
 
-/// Ilustrasi hero berbentuk lingkaran bergradien dengan ikon kuis.
-/// Digunakan sebagai pengganti Image.asset saat aset belum tersedia.
+/// Ilustrasi hero menggunakan gambar aset logo_kuis.png.
 class _HeroIllustration extends StatelessWidget {
   const _HeroIllustration({required this.colorScheme});
   final ColorScheme colorScheme;
@@ -257,29 +261,26 @@ class _HeroIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 150,
-      height: 150,
+      width: 180,
+      height: 180,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colorScheme.primary, colorScheme.secondary],
-        ),
+        color: colorScheme.primary.withValues(alpha: 0.08),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withValues(alpha: 0.35),
+            color: colorScheme.primary.withValues(alpha: 0.2),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: const Icon(Icons.quiz_rounded, size: 72, color: Colors.white),
+      padding: const EdgeInsets.all(20),
+      child: Image.asset('assets/images/logo_kuis.png', fit: BoxFit.contain),
     );
   }
 }
 
-/// Baris info singkat tentang kuis (jumlah soal, dll.).
+/// Baris chip info singkat tentang kuis.
 class _QuizInfoRow extends StatelessWidget {
   const _QuizInfoRow({required this.totalQuestions, required this.colorScheme});
   final int totalQuestions;
@@ -287,21 +288,21 @@ class _QuizInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 10,
+      runSpacing: 8,
       children: [
         _InfoChip(
           icon: Icons.help_outline_rounded,
           label: '$totalQuestions Soal',
           colorScheme: colorScheme,
         ),
-        const SizedBox(width: 12),
         _InfoChip(
           icon: Icons.timer_outlined,
           label: 'Pilihan Ganda',
           colorScheme: colorScheme,
         ),
-        const SizedBox(width: 12),
         _InfoChip(
           icon: Icons.emoji_events_outlined,
           label: 'Raih Skor!',

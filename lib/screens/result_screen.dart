@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 
 import '../providers/quiz_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/adaptive_layout.dart';
 import '../widgets/custom_button.dart';
 import 'welcome_screen.dart';
 
-/// Layar hasil akhir kuis: menampilkan skor, predikat, dan tombol ulangi.
+/// Layar hasil akhir kuis: skor, predikat, dan tombol ulangi.
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
 
@@ -43,13 +44,12 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   void _playAgain(BuildContext context) {
-    final provider = context.read<QuizProvider>();
-    provider.resetQuiz();
+    context.read<QuizProvider>().resetQuiz();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, animation, __) => const WelcomeScreen(),
-        transitionsBuilder: (_, animation, __, child) {
+        pageBuilder: (context, animation, _) => const WelcomeScreen(),
+        transitionsBuilder: (context, animation, _, child) {
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
@@ -72,8 +72,7 @@ class _ResultScreenState extends State<ResultScreen>
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<QuizProvider>();
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.of(context).size.height;
 
     final score = provider.score;
@@ -86,18 +85,23 @@ class _ResultScreenState extends State<ResultScreen>
         title: const Text('Hasil Kuis'),
         automaticallyImplyLeading: false,
         actions: [
+          // ── Toggle Light / Dark Mode ──────────────────────────────────
           IconButton(
             tooltip: provider.isDarkMode ? 'Light Mode' : 'Dark Mode',
-            icon: Icon(
-              provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Icon(
+                provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                key: ValueKey(provider.isDarkMode),
+              ),
             ),
             onPressed: provider.toggleTheme,
           ),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        // ── AdaptiveScrollLayout: konten dibatasi 600dp dan discroll ──
+        child: AdaptiveScrollLayout(
           child: FadeTransition(
             opacity: _fadeAnim,
             child: Column(
@@ -218,7 +222,6 @@ class _Predikat {
   final Color color;
 }
 
-/// Ilustrasi lingkaran berisi emoji dan skor besar.
 class _ResultIllustration extends StatelessWidget {
   const _ResultIllustration({
     required this.score,
@@ -231,51 +234,51 @@ class _ResultIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 160,
-      height: 160,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colorScheme.primary, colorScheme.secondary],
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Gambar achievement sebagai background ilustrasi.
+        SizedBox(
+          width: 180,
+          height: 180,
+          child: Image.asset(
+            'assets/images/achievement.png',
+            fit: BoxFit.contain,
+          ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.primary.withValues(alpha: 0.4),
-            blurRadius: 28,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '$score',
-            style: GoogleFonts.poppins(
-              fontSize: 48,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              height: 1.0,
+        // Overlay skor di atas gambar.
+        Positioned(
+          bottom: 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [colorScheme.primary, colorScheme.secondary],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withValues(alpha: 0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              '$score / $total',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
             ),
           ),
-          Text(
-            'dari $total',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withValues(alpha: 0.85),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-/// Kartu ringkasan skor dengan progress bar persentase.
 class _ScoreCard extends StatelessWidget {
   const _ScoreCard({
     required this.score,
@@ -299,7 +302,6 @@ class _ScoreCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Baris predikat
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -340,14 +342,13 @@ class _ScoreCard extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Progress bar persentase
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0, end: percentage / 100),
                 duration: const Duration(milliseconds: 800),
                 curve: Curves.easeOut,
-                builder: (_, value, __) => LinearProgressIndicator(
+                builder: (context, value, _) => LinearProgressIndicator(
                   value: value,
                   minHeight: 8,
                   backgroundColor: colorScheme.surfaceContainerHighest,
@@ -358,7 +359,6 @@ class _ScoreCard extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Baris detail: Benar / Salah
             Row(
               children: [
                 Expanded(
