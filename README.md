@@ -118,7 +118,7 @@ lib/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/<username>/aplikasi_quiz.git
+git clone https://github.com/rio-johanes/aplikasi_kuis.git
 cd aplikasi_quiz
 
 # 2. Install dependencies
