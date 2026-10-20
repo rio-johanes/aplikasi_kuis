@@ -93,25 +93,19 @@ lib/
 
 |           Light Mode            |           Dark Mode            |
 | :-----------------------------: | :----------------------------: |
-|    <img width="357" height="767" alt="image" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" />     |    <img width="357" height="767" alt="image" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" />    |
+| <img width="357" height="767" alt="image" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" /> | <img width="357" height="767" alt="image" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" /> |
 
 ### Quiz Screen
 
-|     Sebelum Menjawab     | Setelah Menjawab (Benar) | Setelah Menjawab (Salah) |
-| :----------------------: | :----------------------: | :----------------------: |
-| <img width="352" height="765" alt="image" src="https://github.com/user-attachments/assets/a720d5e5-4e76-49df-9439-220b70e4d6a7" />
- | <img width="356" height="767" alt="image" src="https://github.com/user-attachments/assets/ef476f66-e36b-4820-8bef-c3b23f17a5e3" />
- | <img width="351" height="766" alt="image" src="https://github.com/user-attachments/assets/ef193a4b-06a0-4952-b443-7bd0c9905087" />
- |
+| Sebelum Menjawab | Setelah Menjawab (Benar) | Setelah Menjawab (Salah) |
+| :---: | :---: | :---: |
+| <img width="350" alt="Sebelum Menjawab" src="https://github.com/user-attachments/assets/a720d5e5-4e76-49df-9439-220b70e4d6a7" /> | <img width="350" alt="Jawaban Benar" src="https://github.com/user-attachments/assets/ef476f66-e36b-4820-8bef-c3b23f17a5e3" /> | <img width="350" alt="Jawaban Salah" src="https://github.com/user-attachments/assets/ef193a4b-06a0-4952-b443-7bd0c9905087" /> |
 
 ### Result Screen
 
-|Skor Tinggi|
-<img width="353" height="766" alt="image" src="https://github.com/user-attachments/assets/7b881236-7bed-4003-bf8a-ebee991a970b" />
-
-|Skor Rendah|
-<img width="357" height="768" alt="image" src="https://github.com/user-attachments/assets/865c7628-89c1-477f-8765-32be16321d64" />
-
+| Skor Tinggi | Skor Rendah |
+| :---: | :---: |
+| <img width="350" alt="Skor Tinggi" src="https://github.com/user-attachments/assets/7b881236-7bed-4003-bf8a-ebee991a970b" /> | <img width="350" alt="Skor Rendah" src="https://github.com/user-attachments/assets/865c7628-89c1-477f-8765-32be16321d64" /> |
 
 ---
 
