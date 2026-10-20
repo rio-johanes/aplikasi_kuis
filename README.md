@@ -86,9 +86,6 @@ lib/
 
 ##  Screenshot
 
-> **Petunjuk:** Jalankan aplikasi dengan `flutter run`, ambil screenshot setiap halaman,
-> lalu simpan di folder `screenshots/` dan ganti placeholder di bawah ini.
-
 ### Welcome Screen
 
 | Light Mode | Dark Mode |
