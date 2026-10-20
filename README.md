@@ -91,9 +91,9 @@ lib/
 
 ### Welcome Screen
 
-|           Light Mode            |           Dark Mode            |
-| :-----------------------------: | :----------------------------: |
-| <img width="357" height="767" alt="image" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" /> | <img width="357" height="767" alt="image" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" /> |
+| Light Mode | Dark Mode |
+| :---: | :---: |
+| <img width="350" alt="Light Mode" src="https://github.com/user-attachments/assets/39fd5852-db7d-461a-97b8-a5ab8b8f858c" /> | <img width="350" alt="Dark Mode" src="https://github.com/user-attachments/assets/aa6f8dc9-0b67-464a-81cf-d6146c1e67da" /> |
 
 ### Quiz Screen
 
