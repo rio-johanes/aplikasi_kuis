@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(
-    // MultiProvider di-wrap di root agar semua provider
-    // bisa diakses oleh seluruh widget tree.
     MultiProvider(
       providers: [
-        // Provider-provider akan ditambahkan di sini pada tahap berikutnya.
+        // Provider akan ditambahkan di sini pada tahap berikutnya.
         // Contoh: ChangeNotifierProvider(create: (_) => QuizProvider()),
       ],
       child: const MyApp(),
@@ -24,32 +23,53 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aplikasi Kuis',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        // Menggunakan Google Fonts sebagai font default aplikasi.
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-        useMaterial3: true,
-      ),
-      // Halaman awal sementara — akan diganti dengan splash/home screen
-      // pada tahap berikutnya.
+
+      // Terapkan Light dan Dark theme dari AppTheme.
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+
+      // Ikuti preferensi sistem (light/dark) pengguna secara otomatis.
+      themeMode: ThemeMode.system,
+
       home: const _PlaceholderScreen(),
     );
   }
 }
 
-/// Layar placeholder sementara selama tahap inisialisasi.
-/// Akan dihapus dan diganti dengan screen asli pada tahap berikutnya.
+/// Layar placeholder sementara.
+/// Akan diganti dengan splash/home screen pada tahap berikutnya.
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Center(
-        child: Text(
-          'Aplikasi Kuis',
-          style: Theme.of(context).textTheme.headlineMedium
-              ?.copyWith(fontWeight: FontWeight.bold, color: Colors.indigo),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.quiz_rounded,
+              size: 72,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Aplikasi Kuis',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tahap 2 — Tema & Model Data',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
         ),
       ),
     );
