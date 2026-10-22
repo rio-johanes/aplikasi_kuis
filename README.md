@@ -143,8 +143,7 @@ flutter run
 
 ## Tautan Penting
 
-| **Video Presentasi**   |              |
-
+| **Video Presentasi**   |   https://drive.google.com/file/d/1mT1B8ZCpzDG24StNbBmdrNo2wY-xrTYI/view?usp=drive_link           |
 ---
 
 <p align="center">Dibuat dengan menggunakan Flutter</p>
